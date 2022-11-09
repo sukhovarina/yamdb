@@ -8,7 +8,8 @@ from rest_framework.filters import SearchFilter
 from reviews.models import Category, Genre, Title
 from .serializers import (
     CategorySerializer, GenreSerializer,
-    TitleSerializer, TitleUpdateSerializer
+    TitleSerializer, TitleUpdateSerializer,
+    CommentSerializer
 )
 from .filters import TitleFilter
 
@@ -46,3 +47,12 @@ class TitleViewSet(viewsets.ModelViewSet):
         if self.action == 'create' or self.action == 'partial_update':
             return TitleUpdateSerializer
         return TitleSerializer
+
+
+class CommentsViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+    pagination_class = PageNumberPagination
+
+    def perform_create(self, serializer):
+        serializer.save(
+            author=self.request.user, id=self.kwargs['title_id'])
