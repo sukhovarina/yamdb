@@ -12,9 +12,9 @@ router.register(r'genres', GenreViewSet, basename='genre')
 router.register(r'titles', TitleViewSet, basename='title')
 router.register(r'reviews', ReviewsViewSet, basename='reviews')
 router.register(
-    r'posts/(?P<post_id>\d+)/comments',
+    r'title/(?P<title_id>\d+)/comments',
     CommentsViewSet,
-    basename=r'posts/(?P<post_id>\d+)/comments'
+    basename=r'title/(?P<title_id>\d+)/comments'
 )
 
 urlpatterns = [

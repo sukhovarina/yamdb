@@ -1,5 +1,8 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 from .validators import validate_year
+
+User = get_user_model()
 
 
 class Category(models.Model):
@@ -76,3 +79,11 @@ class Reviews(models.Model):
         ]
         ordering = ('-created',)
 
+class Comment(models.Model):
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='comments')
+    post = models.ForeignKey(
+        Title, on_delete=models.CASCADE, related_name='comments')
+    text = models.TextField()
+    created = models.DateTimeField(
+        'Дата добавления', auto_now_add=True, db_index=True)
