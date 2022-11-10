@@ -23,7 +23,6 @@ from .serializers import (
 )
 
 
-
 class Authenticate(APIView):
     def post(self, request):
         try:
@@ -53,7 +52,7 @@ class GetJWT(APIView):
         if serializer.is_valid():
             data = serializer.validated_data
             user = get_object_or_404(User, username=data['username'])
-            if data['confirmation_code'] == user.confirmation_code: #при совпадении кодов в запросе и письме выводится токен
+            if data['confirmation_code'] == user.confirmation_code:
                 refresh = RefreshToken.for_user(user).access_token
                 return Response({'token': str(refresh)}, status=status.HTTP_200_OK)
             return Response({'confirmation_code': 'Неверный код'}, status=status.HTTP_400_BAD_REQUEST)
@@ -82,7 +81,6 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.data)
 
-
     def perform_create(self, serializer):
         serializer.save()
 
@@ -109,8 +107,8 @@ class GenreViewSet(CategoryGenreViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    # queryset = Title.objects.all().annotate(
-    #     rating=Avg('reviews__score')).all()
+    queryset = Title.objects.all().annotate(
+        rating=Avg('reviews__score')).all()
     serializer_class = TitleSerializer
     pagination_class = PageNumberPagination
     filter_backends = (DjangoFilterBackend,)

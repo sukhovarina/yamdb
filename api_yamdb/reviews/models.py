@@ -112,6 +112,7 @@ class Review(models.Model):
         ]
         ordering = ('-created',)
 
+
 class Comment(models.Model):
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='comments')
