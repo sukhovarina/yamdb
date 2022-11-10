@@ -52,7 +52,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class CommentsViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-#    permission_classes = ()
+    permission_classes = AdminModOwnerOrReadOnly
     pagination_class = PageNumberPagination
 
     def perform_create(self, serializer):
@@ -62,7 +62,7 @@ class CommentsViewSet(viewsets.ModelViewSet):
 
 class ReviewsViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-#    permission_classes = ()
+    permission_classes = AdminModOwnerOrReadOnly
     pegination_class = PageNumberPagination
 
     def get_queryset(self):
