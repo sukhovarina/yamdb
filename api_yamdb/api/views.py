@@ -1,16 +1,27 @@
-from rest_framework import status, viewsets, permissions
+from rest_framework import status, viewsets, permissions, mixins
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from django.core.mail import send_mail
-from .serializers import AuthSerializer, JWTSerializer, AdminSerializer, UserSerializer
 from random import randint
-from reviews.models import User
+from reviews.models import User, Category, Genre, Title
 from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.tokens import RefreshToken
 from .permissions import AdminOnly, AdminOrReadOnly, AdminModOwnerOrReadOnly, OwnerOnly
+from django.db.models import Avg
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
+from .filters import TitleFilter
+from .serializers import (
+    AuthSerializer, JWTSerializer,
+    AdminSerializer, UserSerializer,
+    CategorySerializer, GenreSerializer,
+    TitleSerializer, TitleUpdateSerializer,
+    CommentSerializer, ReviewSerializer
+)
+
 
 
 class Authenticate(APIView):
@@ -74,3 +85,64 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save()
+
+
+class CategoryGenreViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet
+):
+    pagination_class = PageNumberPagination
+    filter_backends = (SearchFilter,)
+    search_fields = ('name',)
+
+
+class CategoryViewSet(CategoryGenreViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+
+class GenreViewSet(CategoryGenreViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    # queryset = Title.objects.all().annotate(
+    #     rating=Avg('reviews__score')).all()
+    serializer_class = TitleSerializer
+    pagination_class = PageNumberPagination
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitleFilter
+
+    def get_serializer_class(self):
+        if self.action == 'create' or self.action == 'partial_update':
+            return TitleUpdateSerializer
+        return TitleSerializer
+
+
+class CommentsViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+#    permission_classes = ()
+    pagination_class = PageNumberPagination
+
+    def perform_create(self, serializer):
+        serializer.save(
+            author=self.request.user, id=self.kwargs['title_id'])
+
+
+class ReviewsViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
+#    permission_classes = ()
+    pegination_class = PageNumberPagination
+
+    def get_queryset(self):
+        title_id = self.kwargs.get('title_id')
+        title = get_object_or_404(Title, pk=title_id)
+        return title.reviews.all()
+
+    def perform_create(self, serializer):
+        title_id = self.kwargs.get('title_id')
+        title = get_object_or_404(Title, pk=title_id)
+        serializer.save(title=title, author=self.request.user)
