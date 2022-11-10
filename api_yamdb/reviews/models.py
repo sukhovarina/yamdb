@@ -107,10 +107,11 @@ class Reviews(models.Model):
 
     class Meta:
         constraints = [models.UniqueConstraint(
-            Fields=['author, title'],
+            fields=['author, title'],
             name='unique_review')
         ]
         ordering = ('-created',)
+
 
 class Comment(models.Model):
     author = models.ForeignKey(
