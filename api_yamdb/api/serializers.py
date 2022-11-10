@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.shortcuts import get_object_or_404
 
 
-from reviews.models import Category, Genre, Title, Reviews, User, Comment
+from reviews.models import Category, Genre, Title, Review, User, Comment
 
 
 class AuthSerializer(serializers.ModelSerializer):
@@ -86,7 +86,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = '__all__'
-        model = Reviews
+        model = Review
         read_only_fields = ('title',)
 
     def validate_score(self, value):

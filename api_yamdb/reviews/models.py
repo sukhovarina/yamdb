@@ -91,7 +91,7 @@ class GenreTitle(models.Model):
         return f'{self.genre} {self.title}'
 
 
-class Reviews(models.Model):
+class Review(models.Model):
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
