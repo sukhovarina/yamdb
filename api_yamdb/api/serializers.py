@@ -2,37 +2,7 @@ from rest_framework import serializers
 from django.shortcuts import get_object_or_404
 
 
-from reviews.models import Category, Genre, Title, Reviews, User, Comment
-
-
-class AuthSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('username', 'email')
-
-
-class JWTSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(required=True)
-    confirmation_code = serializers.CharField(required=True)
-
-    class Meta:
-        model = User
-        fields = ('username', 'confirmation_code')
-
-
-class UserSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'bio', 'role')
-        read_only_fields = ('role',)
-
-
-class AdminSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'bio', 'role')
+from reviews.models import Category, Genre, Title, Review, Comment
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -86,7 +56,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = '__all__'
-        model = Reviews
+        model = Review
         read_only_fields = ('title',)
 
     def validate_score(self, value):
