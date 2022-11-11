@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from django.core.mail import send_mail
 from random import randint
-from reviews.models import User, Category, Genre, Title
+from reviews.models import User, Category, Genre, Title, Review
 from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.tokens import RefreshToken
 from .permissions import AdminOnly, AdminOrReadOnly, AdminModOwnerOrReadOnly, OwnerOnly
@@ -105,6 +105,9 @@ class GenreViewSet(CategoryGenreViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
+    def perform_create(self, serializer):
+        serializer.save()
+
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all().annotate(
@@ -122,8 +125,13 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class CommentsViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = AdminModOwnerOrReadOnly
+    permission_classes = (AdminModOwnerOrReadOnly,)
     pagination_class = PageNumberPagination
+
+    def get_queryset(self):
+        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+        queryset = review.comments.all()
+        return queryset
 
     def perform_create(self, serializer):
         serializer.save(
@@ -132,7 +140,7 @@ class CommentsViewSet(viewsets.ModelViewSet):
 
 class ReviewsViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = AdminModOwnerOrReadOnly
+    permission_classes = (AdminModOwnerOrReadOnly,)
     pegination_class = PageNumberPagination
 
     def get_queryset(self):

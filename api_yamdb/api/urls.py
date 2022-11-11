@@ -9,11 +9,16 @@ router.register('users', UserViewSet, basename='users')
 router.register(r'categories', CategoryViewSet, basename='category')
 router.register(r'genres', GenreViewSet, basename='genre')
 router.register(r'titles', TitleViewSet, basename='title')
-router.register(r'reviews', ReviewsViewSet, basename='reviews')
+router.register(r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)',
+    ReviewsViewSet,
+    basename=r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)')
+router.register(r'titles/(?P<title_id>\d+)/reviews',
+    ReviewsViewSet,
+    basename=r'titles/(?P<title_id>\d+)/reviews')
 router.register(
-    r'title/(?P<title_id>\d+)/comments',
+    r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
     CommentsViewSet,
-    basename=r'title/(?P<title_id>\d+)/comments'
+    basename=r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments'
 )
 
 urlpatterns = [

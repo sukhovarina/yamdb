@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MaxValueValidator, MinValueValidator
+
 from .validators import validate_username, validate_year
 
 
@@ -103,21 +105,41 @@ class Review(models.Model):
         related_name='reviews',
     )
     text = models.TextField()
-    created = models.DateTimeField(auto_now_add=True)
+    score = models.SmallIntegerField(
+        verbose_name='Оценка',
+        validators=[MinValueValidator(1), MaxValueValidator(10)],
+    )
+    pub_date = models.DateTimeField(
+        'Дата добавления',
+        auto_now_add=True,
+        db_index=True,
+    )
 
     class Meta:
-        constraints = [models.UniqueConstraint(
-            fields=['author, title'],
-            name='unique_review')
+        ordering = ['-pub_date']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['author', 'title'], name='unique_review'
+            )
         ]
-        ordering = ('-created',)
+
+    def __str__(self):
+        return self.text[:15]
+#     created = models.DateTimeField(auto_now_add=True)
+
+#     class Meta:
+#         constraints = [models.UniqueConstraint(
+#             fields=['author, title'],
+#             name='unique_review')
+#         ]
+#         ordering = ('-created',)
 
 
 class Comment(models.Model):
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='comments')
-    post = models.ForeignKey(
-        Title, on_delete=models.CASCADE, related_name='comments')
+    review = models.ForeignKey(
+        Review, on_delete=models.CASCADE, related_name='comments')
     text = models.TextField()
-    created = models.DateTimeField(
+    pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
