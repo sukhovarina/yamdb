@@ -16,7 +16,7 @@ def validate_username(value):
         )
 
 
-def validate_year(self, value):
+def validate_year(value):
     year = date.today().year
     if value >= year:
         raise ValidationError('Укажите правильный год.')
