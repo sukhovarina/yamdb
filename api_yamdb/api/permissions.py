@@ -28,15 +28,19 @@ class AdminOrReadOnly(permissions.BasePermission):      #для списка п�
 
 class AdminOnly(permissions.BasePermission):        #для списка юзеров
     def has_permission(self, request, view):
-        return (
-            request.user.is_staff
-            or request.user.role=='admin'
-        )
+        if request.user.is_authenticated:
+            return (
+                request.user.is_staff
+                or request.user.role=='admin'
+            )
+        return False
     def has_object_permission(self, request, view, obj):
-        return (
-            request.user.is_staff
-            or request.user.role=='admin'
-        )
+        if request.user.is_authenticated:
+            return (
+                request.user.is_staff
+                or request.user.role=='admin'
+            )
+        return False
 
 
 class OwnerOnly(permissions.BasePermission):
