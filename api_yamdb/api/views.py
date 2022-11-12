@@ -25,8 +25,7 @@ from .serializers import (
 class Authenticate(APIView):
     def post(self, request):
         try:
-            user = User.objects.get(username=request.data['username'],
-                                    email=request.data['email'])
+            user = User.objects.get(username=request.data['username'], email=request.data['email'])
             serializer = AuthSerializer(user, data=request.data)
         except Exception:
             serializer = AuthSerializer(data=request.data)

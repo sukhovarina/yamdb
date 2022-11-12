@@ -1,7 +1,7 @@
 from rest_framework import permissions
 
 
-class AdminModOwnerOrReadOnly(permissions.BasePermission):
+class AdminModOwnerOrReadOnly(permissions.BasePermission):      #для отзывов, комментариев, оценок
     def has_permission(self, request, view):
         return (
                 request.method in permissions.SAFE_METHODS
