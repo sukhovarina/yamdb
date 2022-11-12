@@ -39,7 +39,7 @@ class User(AbstractUser):
         max_length=20, choices=ROLES, default='user'
     )
     confirmation_code = models.CharField(
-        max_length = 8,
+        max_length=8,
         default='100000'
     )
 

@@ -25,7 +25,10 @@ from .serializers import (
 class Authenticate(APIView):
     def post(self, request):
         try:
-            user = User.objects.get(username=request.data['username'], email=request.data['email'])
+            user = User.objects.get(
+                username=request.data['username'],
+                email=request.data['email']
+            )
             serializer = AuthSerializer(user, data=request.data)
         except Exception:
             serializer = AuthSerializer(data=request.data)
@@ -126,8 +129,8 @@ class TitleViewSet(viewsets.ModelViewSet):
     permission_classes = (AdminOrReadOnly,)
 
     def get_serializer_class(self):
-        if (self.action == 'create' or
-                self.action == 'partial_update'):
+        if (self.action == 'create'
+                or self.action == 'partial_update'):
             return TitleUpdateSerializer
         return TitleSerializer
 
