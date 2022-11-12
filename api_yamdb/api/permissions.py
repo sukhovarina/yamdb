@@ -46,8 +46,3 @@ class AdminOnly(permissions.BasePermission):
                 or request.user.role == 'admin'
             )
         return False
-
-
-class OwnerOnly(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        return obj.author == request.user
