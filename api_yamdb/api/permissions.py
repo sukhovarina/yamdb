@@ -20,7 +20,8 @@ class AdminModOwnerOrReadOnly(permissions.BasePermission):      #для отзы
 class AdminOrReadOnly(permissions.BasePermission):      #для списка произведений, категорий и жанров
     def has_permission(self, request, view):
         return (
-            request.user.is_staff
+            request.method in permissions.SAFE_METHODS
+            or request.user.is_staff
             or request.user.role=='admin'
         )
 
