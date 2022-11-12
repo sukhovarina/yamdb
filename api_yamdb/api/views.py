@@ -94,6 +94,7 @@ class CategoryGenreViewSet(
     pagination_class = PageNumberPagination
     filter_backends = (SearchFilter,)
     search_fields = ('name',)
+    permission_classes = (AdminOrReadOnly,)
 
 
 class CategoryViewSet(CategoryGenreViewSet):
@@ -116,6 +117,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
+    permission_classes = (AdminOrReadOnly,)
 
     def get_serializer_class(self):
         if self.action == 'create' or self.action == 'partial_update':

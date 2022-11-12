@@ -2,7 +2,6 @@ import re
 from datetime import date
 
 from django.core.exceptions import ValidationError
-from django.utils import timezone
 
 
 def validate_username(value):
