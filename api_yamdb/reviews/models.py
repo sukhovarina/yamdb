@@ -40,26 +40,29 @@ class User(AbstractUser):
     )
 
 
-class Category(models.Model):
+class CategoryGenreBase(models.Model):
     name = models.CharField(max_length=256)
     slug = models.SlugField(unique=True, max_length=50)
 
     class Meta:
+        abstract = True
+        ordering = ('name',)
+
+
+class Category(CategoryGenreBase):
+    class Meta(CategoryGenreBase.Meta):
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
 
-class Genre(models.Model):
-    name = models.CharField
-    slug = models.SlugField(unique=True)
-
-    class Meta:
+class Genre(CategoryGenreBase):
+    class Meta(CategoryGenreBase.Meta):
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
 
 class Title(models.Model):
-    name = models.TextField
+    name = models.TextField()
     year = models.PositiveSmallIntegerField(validators=[validate_year])
     description = models.TextField(blank=True)
     genre = models.ManyToManyField(
