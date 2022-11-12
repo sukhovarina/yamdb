@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from django.shortcuts import get_object_or_404
 
-
-from reviews.models import Category, Genre, Title, Review, User, Comment
+from reviews.models import (
+    Category, Genre, Title, Review, User, Comment
+)
 
 
 class AuthSerializer(serializers.ModelSerializer):
@@ -24,7 +24,10 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'bio', 'role')
+        fields = (
+            'username', 'email', 'first_name',
+            'last_name', 'bio', 'role'
+        )
         read_only_fields = ('role',)
 
 
@@ -32,7 +35,10 @@ class AdminSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'bio', 'role')
+        fields = (
+            'username', 'email', 'first_name',
+            'last_name', 'bio', 'role'
+        )
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -58,7 +64,8 @@ class TitleSerializer(serializers.ModelSerializer):
         model = Title
         fields = '__all__'
         read_only_fields = (
-            'id', 'name', 'year', 'description', 'rating', 'genre', 'category'
+            'id', 'name', 'year', 'description',
+            'rating', 'genre', 'category'
         )
 
 
@@ -76,7 +83,8 @@ class TitleUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Title
         fields = (
-            'id', 'name', 'rating', 'year', 'description', 'genre', 'category'
+            'id', 'name', 'rating', 'year',
+            'description', 'genre', 'category'
         )
 
 
@@ -86,6 +94,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     )
 
     def validate_score(self, value):
+        """Валидация для оценки рейтинга"""
         if not (0 < value <= 10):
             raise serializers.ValidationError(
                 'Рейтинг должен быть целым числом от 0 до 10.'
@@ -108,17 +117,6 @@ class ReviewSerializer(serializers.ModelSerializer):
                 'Может существовать только один отзыв!'
             )
         return data
-
-    # def validate(self, data):
-    #     title_id = self.context['view'].kwargs.get('title_id')
-    #     author = self.context.get('request').user
-    #     title = get_object_or_404(Title, pk=title_id)
-    #     if (title.reviews.filter(author=author).exists()
-    #         and self.context.get('request').method != 'PATCH'):
-    #         raise serializers.ValidationError(
-    #             'На одно произведение можно оставлять только один отзыв!'
-    #         )
-    #     return data
 
     class Meta:
         fields = '__all__'

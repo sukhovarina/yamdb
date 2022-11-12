@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import (
+    MaxValueValidator, MinValueValidator
+)
 
 from .validators import validate_username, validate_year
 
@@ -33,7 +35,9 @@ class User(AbstractUser):
         max_length=150,
         blank=True)
     bio = models.TextField(blank=True)
-    role = models.CharField(max_length=20, choices=ROLES, default='user')
+    role = models.CharField(
+        max_length=20, choices=ROLES, default='user'
+    )
     confirmation_code = models.CharField(
         max_length = 8,
         default='100000'
@@ -122,27 +126,35 @@ class Review(models.Model):
         ordering = ['-pub_date']
         constraints = [
             models.UniqueConstraint(
-                fields=['author', 'title'], name='unique_review'
+                fields=['author', 'title'],
+                name='unique_review'
             )
         ]
+        verbose_name = 'Отзыв'
+        verbose_name_plural = 'Отзывы'
 
     def __str__(self):
         return self.text[:15]
-#     created = models.DateTimeField(auto_now_add=True)
-
-#     class Meta:
-#         constraints = [models.UniqueConstraint(
-#             fields=['author, title'],
-#             name='unique_review')
-#         ]
-#         ordering = ('-created',)
 
 
 class Comment(models.Model):
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='comments')
+        User,
+        on_delete=models.CASCADE,
+        related_name='comments'
+    )
     review = models.ForeignKey(
-        Review, on_delete=models.CASCADE, related_name='comments')
+        Review,
+        on_delete=models.CASCADE,
+        related_name='comments'
+    )
     text = models.TextField()
     pub_date = models.DateTimeField(
-        'Дата добавления', auto_now_add=True, db_index=True)
+        'Дата добавления',
+        auto_now_add=True,
+        db_index=True
+    )
+
+    class Meta:
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
