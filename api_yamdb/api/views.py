@@ -70,7 +70,7 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(
         methods=['get', 'patch'],
         detail=False,
-        permission_classes=(OwnerOnly,))
+        permission_classes=(IsAuthenticated, OwnerOnly,))
     def me(self, request):
         serializer = UserSerializer(request.user)
         if request.method == 'PATCH':
