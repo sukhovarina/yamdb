@@ -93,7 +93,7 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer.save()
 
 
-class CategoryGenreViewSet(
+class BaseCategoryGenreViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
     mixins.DestroyModelMixin,
@@ -106,12 +106,12 @@ class CategoryGenreViewSet(
     lookup_field = 'slug'
 
 
-class CategoryViewSet(CategoryGenreViewSet):
+class CategoryViewSet(BaseCategoryGenreViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
-class GenreViewSet(CategoryGenreViewSet):
+class GenreViewSet(BaseCategoryGenreViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
@@ -120,8 +120,13 @@ class GenreViewSet(CategoryGenreViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all().annotate(
-        rating=Avg('reviews__score')).all()
+    queryset = (
+        Title
+        .objects
+        .select_related()
+        .annotate(rating=Avg('reviews__score'))
+        .select_related()
+        )
     serializer_class = TitleSerializer
     pagination_class = PageNumberPagination
     filter_backends = (DjangoFilterBackend,)
@@ -140,19 +145,18 @@ class CommentsViewSet(viewsets.ModelViewSet):
     permission_classes = (AdminModOwnerOrReadOnly,)
     pagination_class = PageNumberPagination
 
-    @property
-    def review_func(self):
+    def get_review(self):
         return get_object_or_404(
             Review, pk=self.kwargs.get('review_id')
         )
 
     def get_queryset(self):
-        return self.review_func.comments.all()
+        return self.get_review.comments.all()
 
     def perform_create(self, serializer):
         serializer.save(
             author=self.request.user,
-            review=self.review_func
+            review=self.get_review
         )
 
 
