@@ -123,10 +123,10 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = (
         Title
         .objects
-        .select_related()
+        .select_related().all()
         .annotate(rating=Avg('reviews__score'))
-        .select_related()
-        )
+        .select_related().all()
+    )
     serializer_class = TitleSerializer
     pagination_class = PageNumberPagination
     filter_backends = (DjangoFilterBackend,)
@@ -145,19 +145,13 @@ class CommentsViewSet(viewsets.ModelViewSet):
     permission_classes = (AdminModOwnerOrReadOnly,)
     pagination_class = PageNumberPagination
 
-    def get_review(self):
-        return get_object_or_404(
-            Review, pk=self.kwargs.get('review_id')
-        )
-
     def get_queryset(self):
-        return self.get_review.comments.all()
+        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+        return review.comments.all()
 
     def perform_create(self, serializer):
-        serializer.save(
-            author=self.request.user,
-            review=self.get_review
-        )
+        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+        serializer.save(author=self.request.user, review=review)
 
 
 class ReviewsViewSet(viewsets.ModelViewSet):
