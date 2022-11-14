@@ -149,7 +149,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 class CommentsViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = [
-        AdminOrReadOnly|ModeratorOrReadOnly|AuthorOrReadOnly
+        AdminOrReadOnly | ModeratorOrReadOnly | AuthorOrReadOnly
     ]
     pagination_class = PageNumberPagination
 
@@ -165,7 +165,7 @@ class CommentsViewSet(viewsets.ModelViewSet):
 class ReviewsViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = [
-        AdminOrReadOnly|ModeratorOrReadOnly|AuthorOrReadOnly
+        AdminOrReadOnly | ModeratorOrReadOnly | AuthorOrReadOnly
     ]
     pegination_class = PageNumberPagination
 
