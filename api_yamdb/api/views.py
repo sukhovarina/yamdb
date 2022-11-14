@@ -6,19 +6,25 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from django.core.mail import send_mail
 from random import randint
-from reviews.models import User, Category, Genre, Title, Review
+from reviews.models import Category, Genre, Title, Review
+from users.models import User
 from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.tokens import RefreshToken
-from .permissions import AdminOnly, AdminOrReadOnly, AdminModOwnerOrReadOnly
+from .permissions import (
+    AdminOnly, AdminOrReadOnly,
+    AuthorOrReadOnly, ModeratorOrReadOnly
+)
 from django.db.models import Avg
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
 from .filters import TitleFilter
-from .serializers import (
+from users.serializers import (
     AuthSerializer, JWTSerializer,
-    AdminSerializer, CategorySerializer,
-    GenreSerializer, TitleSerializer, TitleUpdateSerializer,
-    CommentSerializer, ReviewSerializer
+    AdminSerializer
+)
+from .serializers import (
+    CategorySerializer, GenreSerializer, TitleSerializer,
+    TitleUpdateSerializer, CommentSerializer, ReviewSerializer
 )
 
 
@@ -37,7 +43,7 @@ class Authenticate(APIView):
             serializer.save(confirmation_code=code)
             data = serializer.validated_data
             user = User.objects.get(username=data['username'])
-            send_mail(  # отправляем код на указанную юзером почту
+            send_mail(
                 'Код для регистрации',
                 f'Ваш код: {code}',
                 'from@example.com',
@@ -142,7 +148,9 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class CommentsViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = (AdminModOwnerOrReadOnly,)
+    permission_classes = [
+        AdminOrReadOnly|ModeratorOrReadOnly|AuthorOrReadOnly
+    ]
     pagination_class = PageNumberPagination
 
     def get_queryset(self):
@@ -156,7 +164,9 @@ class CommentsViewSet(viewsets.ModelViewSet):
 
 class ReviewsViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = (AdminModOwnerOrReadOnly,)
+    permission_classes = [
+        AdminOrReadOnly|ModeratorOrReadOnly|AuthorOrReadOnly
+    ]
     pegination_class = PageNumberPagination
 
     def get_queryset(self):
