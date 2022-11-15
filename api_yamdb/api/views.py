@@ -126,9 +126,8 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = (
         Title
         .objects
-        .select_related().all()
+        .select_related('category')
         .annotate(rating=Avg('reviews__score'))
-        .select_related().all()
     )
     serializer_class = TitleSerializer
     pagination_class = PageNumberPagination
@@ -166,12 +165,12 @@ class ReviewsViewSet(viewsets.ModelViewSet):
     ]
     pegination_class = PageNumberPagination
 
+    def get_title(self):
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
+        return title
+
     def get_queryset(self):
-        title_id = self.kwargs.get('title_id')
-        title = get_object_or_404(Title, pk=title_id)
-        return title.reviews.all()
+        return self.get_title().reviews.all()
 
     def perform_create(self, serializer):
-        title_id = self.kwargs.get('title_id')
-        title = get_object_or_404(Title, pk=title_id)
-        serializer.save(title=title, author=self.request.user)
+        serializer.save(title=self.get_title(), author=self.request.user)
