@@ -38,40 +38,37 @@ class Authenticate(APIView):
             serializer = AuthSerializer(user, data=request.data)
         except Exception:
             serializer = AuthSerializer(data=request.data)
-        if serializer.is_valid():
-            code = str(randint(100000, 999999))
-            serializer.save(confirmation_code=code)
-            data = serializer.validated_data
-            user = User.objects.get(username=data['username'])
-            send_mail(
-                'Код для регистрации',
-                f'Ваш код: {code}',
-                'from@example.com',
-                [user.email],
-                fail_silently=False,
-            )
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        code = str(randint(100000, 999999))
+        serializer.save(confirmation_code=code)
+        data = serializer.validated_data
+        user = User.objects.get(username=data['username'])
+        send_mail(
+            'Код для регистрации',
+            f'Ваш код: {code}',
+            'from@example.com',
+            [user.email],
+            fail_silently=False,
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class GetJWT(APIView):
     def post(self, request):
         serializer = JWTSerializer(data=request.data)
-        if serializer.is_valid():
-            data = serializer.validated_data
-            user = get_object_or_404(User, username=data['username'])
-            if data['confirmation_code'] == user.confirmation_code:
-                refresh = RefreshToken.for_user(user).access_token
-                return Response(
-                    {'token': str(refresh)},
-                    status=status.HTTP_200_OK
-                )
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        user = get_object_or_404(User, username=data['username'])
+        if data['confirmation_code'] == user.confirmation_code:
+            refresh = RefreshToken.for_user(user).access_token
             return Response(
-                {'confirmation_code': 'Неверный код'},
-                status=status.HTTP_400_BAD_REQUEST
+                {'token': str(refresh)},
+                status=status.HTTP_200_OK
             )
-        return Response(serializer.errors,
-                        status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {'confirmation_code': 'Неверный код'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -149,7 +146,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 class CommentsViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = [
-        AdminOrReadOnly|ModeratorOrReadOnly|AuthorOrReadOnly
+        AdminOrReadOnly|ModeratorOrReadOnly|(AuthorOrReadOnly&IsAuthenticated)
     ]
     pagination_class = PageNumberPagination
 
@@ -165,7 +162,7 @@ class CommentsViewSet(viewsets.ModelViewSet):
 class ReviewsViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = [
-        AdminOrReadOnly|ModeratorOrReadOnly|AuthorOrReadOnly
+        AdminOrReadOnly|ModeratorOrReadOnly|(AuthorOrReadOnly&IsAuthenticated)
     ]
     pegination_class = PageNumberPagination
 
